@@ -17,7 +17,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundlerIdentifier": "com.metrohacks.foodwasteapp"
     },
     "android": {
       "adaptiveIcon": {

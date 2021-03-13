@@ -2,26 +2,30 @@ import React from 'react';
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Agenda } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
+import { firebase } from '../src/firebase/config';
 
 const TabIcon = (props) => (
     <Ionicons name="calendar" size={34} 
     color={props.focused ? 'grey' : 'darkgrey'} />
 )
 
+
+
 export default class MealPlannerScreen extends React.Component {
     static navigationOptions = {
         tabBarIcon: TabIcon
     };
-
+    
     constructor(props) {
         super(props);
 
         this.state = {
             items: {
-            '2017-05-22': [{name: 'PIZZA', type: 'breakfast', height: 100}],
-            '2017-05-23': [{name: 'ICE CREAM', height: 100, type: 'lunch'}],
-            '2017-05-25': [{name: 'WAFFLES', type: 'breakfast', height: 100}, {name: 'FUN', type: 'lunch', height: 100}]
-            }
+            '2021-05-22': [{name: 'PIZZA', type: 'breakfast', height: 100}],
+            '2021-05-23': [{name: 'ICE CREAM', height: 100, type: 'lunch'}],
+            '2021-05-25': [{name: 'WAFFLES', type: 'breakfast', height: 100}, {name: 'FUN', type: 'lunch', height: 100}]
+            },
+            //selectedDate: today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(),
         };
         }
 
@@ -29,39 +33,48 @@ export default class MealPlannerScreen extends React.Component {
         const breakfast = {key: 'breakfast', color: '#212F45', selectedDotColor: '#212F45'};
         const lunch = {key: 'lunch', color: '#212F45', selectedDotColor: '#212F45'};
         const dinner = {key: 'dinner', color: '#212F45', selectedDotColor: '#212F45'};
+        var today = new Date();
         return (
-            <Agenda
-            //testID={testIDs.agenda.CONTAINER}
-            items={this.state.items}
-            loadItemsForMonth={this.loadItems.bind(this)}
-            selected={'2017-05-16'}
-            markingType={'multi-dot'}
-            renderItem={this.renderItem.bind(this)}
-            renderEmptyDate={this.renderEmptyDate.bind(this)}
-            rowHasChanged={this.rowHasChanged.bind(this)}
-            /*markedDates={{
-                '2017-05-14': {startingDay: true, endingDay: true},
-                '2017-05-25': {dots: [breakfast]},
-                '2017-05-23': {dots: [breakfast, lunch, dinner]},
-                '2017-05-26': {endingDay: true}}}
-            */
-                // monthFormat={'yyyy'}
-            theme={{
-                backgroundColor: '#212F45',
-                //calendarBackground: '#2EC4B6',
-                agendaDayTextColor: 'white',
-                agendaDayNumColor: 'white',
-            }}
-            /*renderDay={(day, item) => (
-                <View style={styles.verticalLine}>
-                    <Text>
-                        {day ? day.day : null}
-                    </Text>
-                </View>
-            )}
-            */
-            // hideExtraDays={false}
-            />
+            <View>
+                <TouchableOpacity
+                    style={styles.todayButton}
+                    //onPress={() => this.setState({selectedDate: today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()})}
+                >
+                    <Text style={{color: 'white', alignSelf: 'center'}}>Today</Text>
+                </TouchableOpacity>
+                <Agenda
+                //testID={testIDs.agenda.CONTAINER}
+                items={this.state.items}
+                loadItemsForMonth={this.loadItems.bind(this)}
+                current={today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()}
+                markingType={'multi-dot'}
+                renderItem={this.renderItem.bind(this)}
+                renderEmptyDate={this.renderEmptyDate.bind(this)}
+                rowHasChanged={this.rowHasChanged.bind(this)}
+                /*markedDates={{
+                    '2017-05-14': {startingDay: true, endingDay: true},
+                    '2017-05-25': {dots: [breakfast]},
+                    '2017-05-23': {dots: [breakfast, lunch, dinner]},
+                    '2017-05-26': {endingDay: true}}}
+                */
+                    // monthFormat={'yyyy'}
+                theme={{
+                    backgroundColor: '#212F45',
+                    //calendarBackground: '#2EC4B6',
+                    agendaDayTextColor: 'white',
+                    agendaDayNumColor: 'white',
+                }}
+                /*renderDay={(day, item) => (
+                    <View style={styles.verticalLine}>
+                        <Text>
+                            {day ? day.day : null}
+                        </Text>
+                    </View>
+                )}
+                */
+                // hideExtraDays={false}
+                />
+            </View>
         );
     }
 
@@ -148,5 +161,20 @@ const styles = StyleSheet.create({
         width: 50,
         marginTop: 10,
         marginRight: 10,
+    },
+    todayButton: {
+        marginTop:10,
+        paddingTop:15,
+        paddingBottom:15,
+        marginLeft:30,
+        marginRight:30,
+        alignSelf: 'center',
+        width: 100,
+        height: 20,
+        backgroundColor:'#212F45',
+        borderRadius:10,
+        borderWidth: 1,
+        borderColor: 'black',
+        justifyContent: 'center',
     }
   });
