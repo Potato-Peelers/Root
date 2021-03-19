@@ -57,8 +57,6 @@ export default function ExpirationDate() {
               <Text>+</Text>
             </View>
           </TouchableOpacity>
-
-
       </KeyboardAvoidingView>
 
     </View>
