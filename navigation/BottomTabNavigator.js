@@ -5,11 +5,15 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 import PantryListScreen from '../screens/PantryListScreen';
 import ShoppingListScreen from '../screens/ShoppingListScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import ScannerScreen from '../screens/ScannerScreen';
+import MealPlannerScreen from '../screens/MealPlannerScreen';
 
 const BottomTabNavigator = createBottomTabNavigator({
   One: PantryListScreen,
   Two: ShoppingListScreen,
-  Three: SettingsScreen
+  Three: SettingsScreen,
+  Four: ScannerScreen,
+  Five: MealPlannerScreen,
 }, {
   tabBarOptions: {
     showLabel: false
