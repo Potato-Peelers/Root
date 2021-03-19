@@ -1,180 +1,249 @@
-import React from 'react';
-import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Agenda } from 'react-native-calendars';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Dimensions} from 'react-native';
+import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
+import MealList from './MealComponent';
+import moment from 'moment';
 import { Ionicons } from '@expo/vector-icons';
-import { firebase } from '../src/firebase/config';
 
 const TabIcon = (props) => (
     <Ionicons name="calendar" size={34} 
     color={props.focused ? 'grey' : 'darkgrey'} />
 )
 
-
-
-export default class MealPlannerScreen extends React.Component {
-    static navigationOptions = {
+export default function MealPlannerScreen(){
+    const navigationOptions = {
         tabBarIcon: TabIcon
     };
+    var today = new Date();
+    var offset = null;
+    switch(moment(today).format('dddd')){
+        case 'Sunday': offset=0;
+        case 'Monday': offset=-1;
+        case 'Tuesday': offset=-2;
+        case 'Wednesday': offset=-3;
+        case 'Thursday': offset=-4;
+        case 'Friday': offset=-5;
+        case 'Saturday': offset=-6;
+    }
+
+    const goToday=()=>{
+        setFirstDay(moment(today).add(offset, 'days'));
+    }
+    const handleSwipeLeft = () => {
+        setFirstDay(moment(firstDay).add(7, 'days'))
+    }
+    const handleSwipeRight = () => {
+        setFirstDay(moment(firstDay).subtract(7, 'days'))
+    }
+    const [firstDay, setFirstDay] = useState(moment(today).add(offset, 'days'));
     
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            items: {
-            '2021-05-22': [{name: 'PIZZA', type: 'breakfast', height: 100}],
-            '2021-05-23': [{name: 'ICE CREAM', height: 100, type: 'lunch'}],
-            '2021-05-25': [{name: 'WAFFLES', type: 'breakfast', height: 100}, {name: 'FUN', type: 'lunch', height: 100}]
-            },
-            //selectedDate: today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(),
-        };
-        }
-
-        render() {
-        const breakfast = {key: 'breakfast', color: '#212F45', selectedDotColor: '#212F45'};
-        const lunch = {key: 'lunch', color: '#212F45', selectedDotColor: '#212F45'};
-        const dinner = {key: 'dinner', color: '#212F45', selectedDotColor: '#212F45'};
-        var today = new Date();
-        return (
-            <View>
-                <TouchableOpacity
-                    style={styles.todayButton}
-                    //onPress={() => this.setState({selectedDate: today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()})}
-                >
-                    <Text style={{color: 'white', alignSelf: 'center'}}>Today</Text>
-                </TouchableOpacity>
-                <Agenda
-                //testID={testIDs.agenda.CONTAINER}
-                items={this.state.items}
-                loadItemsForMonth={this.loadItems.bind(this)}
-                current={today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()}
-                markingType={'multi-dot'}
-                renderItem={this.renderItem.bind(this)}
-                renderEmptyDate={this.renderEmptyDate.bind(this)}
-                rowHasChanged={this.rowHasChanged.bind(this)}
-                /*markedDates={{
-                    '2017-05-14': {startingDay: true, endingDay: true},
-                    '2017-05-25': {dots: [breakfast]},
-                    '2017-05-23': {dots: [breakfast, lunch, dinner]},
-                    '2017-05-26': {endingDay: true}}}
-                */
-                    // monthFormat={'yyyy'}
-                theme={{
-                    backgroundColor: '#212F45',
-                    //calendarBackground: '#2EC4B6',
-                    agendaDayTextColor: 'white',
-                    agendaDayNumColor: 'white',
-                }}
-                /*renderDay={(day, item) => (
-                    <View style={styles.verticalLine}>
-                        <Text>
-                            {day ? day.day : null}
-                        </Text>
-                    </View>
-                )}
-                */
-                // hideExtraDays={false}
-                />
-            </View>
-        );
-    }
-
-    loadItems(day) {
-    setTimeout(() => {
-        for (let i = -15; i < 85; i++) {
-        const time = day.timestamp + i * 24 * 60 * 60 * 1000;
-        const strTime = this.timeToString(time);
-        if (!this.state.items[strTime]) {
-            this.state.items[strTime] = [];
-            
-        }
-        }
-        const newItems = {};
-        Object.keys(this.state.items).forEach(key => {
-        newItems[key] = this.state.items[key];
-        });
-        this.setState({
-        items: newItems
-        });
-    }, 1000);
-    }
-
-    renderItem(item) {
-        return (
-            <View>
-                <TouchableOpacity
-                    //testID={testIDs.agenda.ITEM}
-                    style={[styles.item, {height: item.height}]}
-                    //onPress={() => Alert.alert(item.name)}
-                >
-                    <Text>{item.type}{"\n"}{item.name}</Text>
-                </TouchableOpacity>
-            </View>
-        );
-    }
-
-    renderDay(day, item) {
-        return (
-            <View>
-                <Text>{day.toString('dddd d MMMM yyyy')}</Text>
-            </View>
-        );
-        
-    }
-
-    renderEmptyDate() {
     return (
-        <View></View>
-        //<View style={styles.item}>
-        //    <Text style={{color: 'white'}}></Text>
-        //</View>
-    );
-    }
+        <View>
+            <TouchableOpacity style={styles.todayButton} onPress={()=>goToday()}>
+                <Text style={{color: 'white'}}>Today</Text>
+            </TouchableOpacity>
+            <GestureRecognizer onSwipeLeft={()=>handleSwipeLeft()} onSwipeRight={()=>handleSwipeRight()}>
+                <View style={styles.header}>
+                    <TouchableOpacity>
+                        <Text style={styles.title}>{moment(firstDay).format('MMMM YYYY')}</Text>
+                    </TouchableOpacity>
+                </View>
 
-    rowHasChanged(r1, r2) {
-    return r1.name !== r2.name;
-    }
-
-    timeToString(time) {
-    const date = new Date(time);
-    return date.toISOString().split('T')[0];
-    }
+                <View style={styles.weekdayLabelContainer}>
+                    <View style={styles.weekdayLabel}>
+                        <Text style={styles.weekdayLabelText}>Sun</Text>
+                    </View>
+                    <View style={styles.weekdayLabel}>
+                        <Text style={styles.weekdayLabelText}>Mon</Text>
+                    </View>
+                    <View style={styles.weekdayLabel}>
+                        <Text style={styles.weekdayLabelText}>Tue</Text>
+                    </View>
+                    <View style={styles.weekdayLabel}>
+                        <Text style={styles.weekdayLabelText}>Wed</Text>
+                    </View>
+                    <View style={styles.weekdayLabel}>
+                        <Text style={styles.weekdayLabelText}>Thu</Text>
+                    </View>
+                    <View style={styles.weekdayLabel}>
+                        <Text style={styles.weekdayLabelText}>Fri</Text>
+                    </View>
+                    <View style={styles.weekdayLabel}>
+                        <Text style={styles.weekdayLabelText}>Sat</Text>
+                    </View>
+                </View>
+                <View style={styles.weekdayNumberContainer}>
+                    <TouchableOpacity style={styles.weekDayNumber}>
+                        <View style={styles.weekDayNumberCircle}>
+                            <Text style={styles.weekDayNumberTextToday}>
+                            {moment(firstDay).format('D')}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.weekDayNumber}>
+                        <View style={styles.weekDayNumberCircle}>
+                            <Text style={styles.weekDayNumberTextToday}>
+                            {moment(firstDay).add(1, 'days').format('D')}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.weekDayNumber}>
+                        <View style={styles.weekDayNumberCircle}>
+                            <Text style={styles.weekDayNumberTextToday}>
+                            {moment(firstDay).add(2, 'days').format('D')}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.weekDayNumber}>
+                        <View style={styles.weekDayNumberCircle}>
+                            <Text style={styles.weekDayNumberTextToday}>
+                            {moment(firstDay).add(3, 'days').format('D')}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.weekDayNumber}>
+                        <View style={styles.weekDayNumberCircle}>
+                            <Text style={styles.weekDayNumberTextToday}>
+                            {moment(firstDay).add(4, 'days').format('D')}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.weekDayNumber}>
+                        <View style={styles.weekDayNumberCircle}>
+                            <Text style={styles.weekDayNumberTextToday}>
+                                {moment(firstDay).add(5, 'days').format('D')}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.weekDayNumber}>
+                        <View style={styles.weekDayNumberCircle}>
+                            <Text style={styles.weekDayNumberTextToday}>
+                                {moment(firstDay).add(6, 'days').format('D')}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            </GestureRecognizer>
+            <MealList first={firstDay}/>
+        </View>
+    )
 }
 
 const styles = StyleSheet.create({
-    item: {
-      backgroundColor: 'white',
-      flex: 1,
-      borderRadius: 5,
-      padding: 10,
-      marginRight: 10,
-      marginTop: 17
+    rootStyle: {
+        backgroundColor: '#212F45',
+       // width: Dimensions.get('window').width,
+        alignItems: 'center',
+        height: '100%',
+        borderColor: '#212F45',
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderBottomWidth: StyleSheet.hairlineWidth
     },
-    emptyDate: {
-      height: 15,
-      flex: 1,
-      paddingTop: 30
+
+    title: {
+        color: '#2EC4B6',
+        fontWeight: 'bold',
+        fontSize: 20,
     },
-    verticalLine: {
-        borderRightWidth: 1,
-        borderRightColor: 'white',
-        height: 50,
-        width: 50,
-        marginTop: 10,
-        marginRight: 10,
+
+    header: {
+        width: '100%',
+        flexDirection: 'row',
+        flex: 0.1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 3
+    },
+
+    weekdayLabel: {
+        flex: 1,
+        alignItems: 'center'
+    },
+
+    weekdayLabelText: {
+        color: '#FE6E64',
+    }, 
+
+    weekdayLabelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 10
+    },
+
+    weekDayNumberCircle: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 30,
+        height: 30,
+        backgroundColor: '#FE6E64',
+        borderRadius: 25,
+    },
+
+    weekDayNumberTextToday : {
+        color: 'white'
+    },
+
+    weekdayNumberContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 5
+    },
+    weekDayNumber: {
+        flex: 1,
+        width: 30,
+        height: 30,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+
+    dot: {
+        width: 4,
+        height: 4,
+        marginTop: 1,
+        alignSelf: 'center',
+        borderRadius: 2,
+        position: 'absolute',
+        bottom: '10%'
+    },
+
+    dateSideLabel: {
+        flexDirection: 'column',
+        alignSelf: 'flex-start',
+    },
+
+    numberSideLabel: {
+        fontFamily: 'montserrat-regular',
+        color: 'white',
+        fontSize: 30,
+    },
+
+    dayOfWeekSideLabel: {
+        color: 'white',
+        fontSize: 15,
+    },
+
+    mealName: {
+        flex: 1,
+        width: '100%',
+        flexDirection: 'row',
+        alignSelf: 'center',
+        padding: 10,
+        color: 'white',
+    },
+
+    verticalLineUnderCircleButtons: {
+        width: '100%',
+        borderBottomColor: 'grey',
+        borderBottomWidth: 1,
+        paddingVertical: 5
     },
     todayButton: {
-        marginTop:10,
-        paddingTop:15,
-        paddingBottom:15,
-        marginLeft:30,
-        marginRight:30,
+        backgroundColor: '#14274e',
         alignSelf: 'center',
-        width: 100,
-        height: 20,
-        backgroundColor:'#212F45',
-        borderRadius:10,
-        borderWidth: 1,
-        borderColor: 'black',
-        justifyContent: 'center',
-    }
-  });
+        width: 70,
+        alignItems: 'center',
+    },
+    
+});

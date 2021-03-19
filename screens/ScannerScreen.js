@@ -1,119 +1,226 @@
-import React, {setState} from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
-import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
-import * as firebase from 'firebase';
+import React, { useState, useEffect, useRef, Component } from 'react';
+import { Text, View, ImageBackground, TextInput, Image, ScrollView, TouchableOpacity, TouchableWithoutFeedback, Modal, Platform, ActivityIndicator, Button } from 'react-native';
+import {Camera} from 'expo-camera';
 
 const TabIcon = (props) => (
     <Ionicons name="camera" size={34} color={props.focused ? 'grey' : 'darkgrey'}/>
 )
-const { width: winWidth, height: winHeight } = Dimensions.get('window');
 
-export default class ScannerScreen extends React.Component{
-    static navigationOptions = {
-        tabBarIcon: TabIcon
-    };
+export default function ScannerPage (){
+    const [startCamera, setStartCamera] = React.useState(false);
+    const [previewVisible, setPreviewVisible] = useState(false)
+    const [capturedImage, setCapturedImage] = useState(null)
+    const [cameraType, setCameraType] = React.useState(Camera.Constants.Type.back)
 
-    camera = null;
-    constructor(props){
-        super(props);
-        this.state = {
-            hasCameraPermission: null,
-            hasPreview: false,
-            capturedImage: null,
-            cameraType: 'back',
-        };
-        this.savePicture.bind(this);
-        this.switchCamera.bind(this);
+    const __startCamera = async () => {
+        const {status} = await Camera.requestPermissionsAsync()
+        if (status === 'granted') {
+            // start the camera
+            setStartCamera(true)
+        } else {
+            Alert.alert('Access denied')
+        }
     }
-    
-
-    async componentDidMount() {
-        const camera = await Permissions.askAsync(Permissions.CAMERA);
-        const hasCameraPermission = (camera.status === 'granted');
-        this.setState({ hasCameraPermission });
-    };
-
-    async savePicture(){
+    const __switchCamera = () => {
+        if (cameraType === 'back') {
+          setCameraType('front')
+        } else {
+          setCameraType('back')
+        }
+    }
+    const __retakePicture = () => {
+        setCapturedImage(null)
+        setPreviewVisible(false)
+        __startCamera()
+    }
+    const __takePicture = async () => {
         if (!camera) return
         const photo = await camera.takePictureAsync()
         console.log(photo)
-        this.setState({hasPreview: true});
-        this.setState({capturedImage: photo});
-    }
+        setPreviewVisible(true)
+        setCapturedImage(photo)
+      }
 
-    switchCamera(){
-        if (this.state.cameraType === 'back') {
-            this.setState({cameraType: 'front'})
-        } else {
-            this.setState({cameraType: 'back'})
-        }
-    }
-
-    render() {
-        const { hasCameraPermission } = this.state;
-
-        if (hasCameraPermission === null) {
-            return <View />;
-        } else if (hasCameraPermission === false) {
-            return <Text>Access to camera has been denied.</Text>;
-        }
-
+    const  __savePicture = async () => {
         return (
-            <View>
-                <Camera
-                    style={styles.preview}
-                    ref={camera => this.camera = camera}
-                    type={this.state.cameraType}
-                />
-                <TouchableOpacity
-                    onPress={this.savePicture}
-                    style={{
-                        borderRadius: 4,
-                        backgroundColor: '#14274e',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Feather
-                        name = "circle"
-                        color="white"
-                        size={24}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={this.switchCamera()}
-                    style={{
-                        borderRadius: 4,
-                        backgroundColor: '#14274e',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Ionicons
-                        name="camera-reverse-outline"
-                        size={24}
-                        color="white"
-                    />
-                </TouchableOpacity>
+            <View style={{height: '100%', width: '100%', flex: 1, backgroundColor: 'transparent'}}>
+                <TextInput>Ingredients</TextInput>
             </View>
         );
-    };
+    }
+
+      const CameraPreview = ({photo}) => {
+        console.log('hi', photo)
+        return (
+          <View
+            style={{
+              backgroundColor: 'transparent',
+              flex: 1,
+              width: '100%',
+              height: '100%'
+            }}
+          >
+            <ImageBackground
+              source={{uri: photo && photo.uri}}
+              style={{
+                flex: 1
+              }}
+            />
+            <TouchableOpacity
+                onPress={__retakePicture}
+                style={{
+                    width: 130,
+                    borderRadius: 4,
+                    backgroundColor: '#14274e',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 40
+                }}
+                >
+                    <Text
+                        style={{
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        textAlign: 'center'
+                        }}
+                    >
+                        Retake
+                    </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                onPress={__savePicture}
+                style={{
+                    width: 130,
+                    borderRadius: 4,
+                    backgroundColor: '#14274e',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 40
+                }}
+                >
+                    <Text
+                        style={{
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        textAlign: 'center'
+                        }}
+                    >
+                        Save
+                    </Text>
+            </TouchableOpacity>
+          </View>
+        )
+      }      
+
+    return(
+        startCamera ? (
+            previewVisible && capturedImage ? (
+                <CameraPreview photo={capturedImage} />
+
+            ) : (
+                <Camera
+                    type={cameraType}
+                    style={{flex: 1}}
+                    ref={(r) => {
+                    camera = r
+                    }}
+                >
+                  <View
+                    style={{
+                      flex: 1,
+                      width: '100%',
+                      backgroundColor: 'transparent',
+                      flexDirection: 'row'
+                    }}
+                  >
+                    <View
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        flexDirection: 'row',
+                        flex: 1,
+                        width: '100%',
+                        padding: 20,
+                        justifyContent: 'space-between'
+                      }}
+                    >
+                      <View
+                        style={{
+                          alignSelf: 'center',
+                          flex: 1,
+                          alignItems: 'center'
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={__takePicture}
+                          style={{
+                            width: 70,
+                            height: 70,
+                            bottom: 0,
+                            borderRadius: 50,
+                            backgroundColor: '#fff'
+                          }}
+                        />
+                        <TouchableOpacity
+                            onPress={__switchCamera}
+                            style={{
+                            marginTop: 20,
+                            borderRadius: '50%',
+                            height: 40,
+                            width: 40
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    color: 'white',
+                                    fontSize: 20
+                                }}
+                                >
+                            {cameraType === 'front' ? 'Flip' : 'Flip'}
+                            </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </View>
+                </Camera>
+              )
+            ) : (
+            <View
+                style={{
+                flex: 1,
+                backgroundColor: '#fff',
+                justifyContent: 'center',
+                alignItems: 'center'
+                }}
+            >
+                <TouchableOpacity
+                onPress={__startCamera}
+                style={{
+                    width: 130,
+                    borderRadius: 4,
+                    backgroundColor: '#14274e',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 40
+                }}
+                >
+                    <Text
+                        style={{
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        textAlign: 'center'
+                        }}
+                    >
+                        Scan plate
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        )
+    );
 }
-
-
-const styles = StyleSheet.create({
-    preview: {
-        height: winHeight,
-        width: winWidth,
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        right: 0,
-        bottom: 0,
-    },
-});
