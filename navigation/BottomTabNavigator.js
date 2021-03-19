@@ -7,6 +7,7 @@ import ShoppingListScreen from '../screens/ShoppingListScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ScannerScreen from '../screens/ScannerScreen';
 import MealPlannerScreen from '../screens/MealPlannerScreen';
+import ExpirationDate from '../screens/ExpirationDate';
 
 const BottomTabNavigator = createBottomTabNavigator({
   One: PantryListScreen,
@@ -14,6 +15,7 @@ const BottomTabNavigator = createBottomTabNavigator({
   Three: SettingsScreen,
   Four: ScannerScreen,
   Five: MealPlannerScreen,
+  Six: ExpirationDate,
 }, {
   tabBarOptions: {
     showLabel: false
