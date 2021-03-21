@@ -124,7 +124,7 @@ export default function MealPlannerScreen(){
                     </TouchableOpacity>
                 </View>
             </GestureRecognizer>
-            <MealList first={firstDay}/>
+            <MealList first={firstDay} user='qlw4YNAfCtUAJrSCFWly'/>
         </View>
     )
 }

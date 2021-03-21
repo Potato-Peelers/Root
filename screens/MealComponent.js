@@ -2,16 +2,18 @@ import React, {useState, useEffect} from 'react';
 import { Text, View, Keyboard, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, TextInput, FlatList } from 'react-native';
 import { Agenda } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
-import { firebase } from '../src/firebase/config';
+import firestore from '../src/firebase/config';
 import { SafeAreaView } from 'react-navigation';
 import moment from 'moment';
+import { ScrollView } from 'react-native-gesture-handler';
+import { render } from 'react-dom';
 
 export default function MealList (props){
-    var db = firebase.firestore();
-    useEffect(() => {
-        
-    }, [])
 
+    useEffect(() => {
+        setDays([props.first, moment(props.first).add(1, 'days'), moment(props.first).add(2, 'days'), moment(props.first).add(3, 'days'), moment(props.first).add(4, 'days'), moment(props.first).add(5, 'days'), moment(props.first).add(6, 'days')])
+    }, [props.first])
+    var db = firestore.collection('users').doc('qlw4YNAfCtUAJrSCFWly').collection('meals');
     const [DATA, setDATA] = useState([
         {
             date: '2021-03-18',
@@ -44,7 +46,8 @@ export default function MealList (props){
             
         }
     ]);
-
+    const [days, setDays] = useState([props.first, moment(props.first).add(1, 'days'), moment(props.first).add(2, 'days'), moment(props.first).add(3, 'days'), moment(props.first).add(4, 'days'), moment(props.first).add(5, 'days'), moment(props.first).add(6, 'days')])
+/*
     const handleInputChange = (text, index, name) => {
         //let newArr = [...DATA];
         //newArr[index].name = text;
@@ -61,13 +64,19 @@ export default function MealList (props){
         let newArr = [...DATA];
         newArr[index] = {...newArr[index], "OTHERMEALname": ""}
     }
-
-    const renderItem = (item, index) => {
+*/
+    async function addMeal(){
+        await db.add({
+            name: 'hi', email: '@gmail.com'
+        });
+        setDATA([{date: '2021-03-18'}])
+    }
+    const renderItem = (day) => {
         return(
             <View>
                 <View style={{flexDirection: 'row'}}>
-                    <Text style={{color: 'black', size: 20}}>{moment(props.firstDay).format('MMMM Do YYYY')}</Text>
-                    <TouchableOpacity onPress={(index) => handleAddMeal(index)}>
+                    <Text style={{color: 'black', size: 20}}>{moment(day).format('MMMM Do YYYY')}</Text>
+                    <TouchableOpacity onPress={() => addMeal()}>
                         <Text>+</Text>
                     </TouchableOpacity>
                 </View>
@@ -85,19 +94,19 @@ export default function MealList (props){
                     </View>
                     <View style={{flexDirection: 'column', flex: 6}}>
                         <View style={{flexDirection: 'row', flex: 2}}>
-                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Meal'} defaultValue={DATA[index].BREAKFASTname} onChangeText={text=>(handleInputChange(text, index, "BREAKFASTname"))} />
+                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Meal'} defaultValue={DATA[0].BREAKFASTname} />
                             <TouchableOpacity >
                                 <Ionicons name="trash" size={14}/>
                             </TouchableOpacity>
                         </View>
                         <View style={{flexDirection: 'row', flex: 2}}>
-                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Ingredients'} defaultValue={DATA[index].BREAKFASTingredients} onChangeText={text=>(item.BREAKFASTingredients=text)}/>
+                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Ingredients'} defaultValue={DATA[0].BREAKFASTingredients} />
                             <TouchableOpacity>
                                 <Ionicons name="trash" size={14}/>
                             </TouchableOpacity>
                         </View>
                         <View style={{flexDirection: 'row', flex: 2}}>
-                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Other'} defaultValue={DATA[index].BREAKFASTother} onChangeText={text=>(item.BREAKFASTother=text)}/>
+                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Other'} defaultValue={DATA[0].BREAKFASTother} />
                             <TouchableOpacity>
                                 <Ionicons name="trash" size={14}/>
                             </TouchableOpacity>
@@ -114,19 +123,19 @@ export default function MealList (props){
                     </View>
                     <View style={{flexDirection: 'column', flex: 6}}>
                         <View style={{flexDirection: 'row', flex: 2}}>
-                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Meal'} defaultValue={DATA[index].LUNCHname} onChangeText={text=>(item.LUNCHname=text)}/>
+                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Meal'} defaultValue={DATA[0].LUNCHname} />
                             <TouchableOpacity>
                                 <Ionicons name="trash" size={14}/>
                             </TouchableOpacity>
                         </View>
                         <View style={{flexDirection: 'row', flex: 2}}>
-                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Ingredients'} defaultValue={DATA[index].LUNCHingredients} onChangeText={text=>(item.LUNCHingredients=text)}/>
+                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Ingredients'} defaultValue={DATA[0].LUNCHingredients} />
                             <TouchableOpacity>
                                 <Ionicons name="trash" size={14}/>
                             </TouchableOpacity>
                         </View>
                         <View style={{flexDirection: 'row', flex: 2}}>
-                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Other'} defaultValue={DATA[index].LUNCHother} onChangeText={text=>(item.LUNCHother=text)}/>
+                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Other'} defaultValue={DATA[0].LUNCHother} />
                             <TouchableOpacity>
                                 <Ionicons name="trash" size={14}/>
                             </TouchableOpacity>
@@ -144,20 +153,20 @@ export default function MealList (props){
                     </View>
                     <View style={{flexDirection: 'column', flex: 6}}>
                         <View style={{flexDirection: 'row', flex: 2}}>
-                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Meal'} defaultValue={DATA[index].DINNERname} onChangeText={text=>(item.DINNERname=text)}/>
+                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Meal'} defaultValue={DATA[0].DINNERname} />
                             <TouchableOpacity>
                                 <Ionicons name="trash" size={14}/>
                             </TouchableOpacity>
                             
                         </View>
                         <View style={{flexDirection: 'row', flex: 2}}>
-                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Ingredients'} defaultValue={DATA[index].DINNERingredients} onChangeText={text=>(item.DINNERingredients=text)}/>
+                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Ingredients'} defaultValue={DATA[0].DINNERingredients} />
                             <TouchableOpacity>
                                 <Ionicons name="trash" size={14}/>
                             </TouchableOpacity>
                         </View>
                         <View style={{flexDirection: 'row', flex: 2}}>
-                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Other'} defaultValue={DATA[index].DINNERother} onChangeText={text=>(item.DINNERother=text)}/>
+                            <TextInput style={{width: '100%'}} multiline={true} textAlignVertical={'top'} placeholder={'Other'} defaultValue={DATA[0].DINNERother} />
                             <TouchableOpacity>
                                 <Ionicons name="trash" size={14}/>
                             </TouchableOpacity>
@@ -171,10 +180,13 @@ export default function MealList (props){
     return(
         <View>
             <SafeAreaView>
-                <FlatList 
-                    data={DATA}
-                    renderItem={({item, index}) => (renderItem(item, index))}
-                />
+                <ScrollView>
+                    {days.map((day) => {
+                        return(
+                        renderItem(day)
+                        );
+                    })}
+                </ScrollView>
             </SafeAreaView>
         </View>
     )
