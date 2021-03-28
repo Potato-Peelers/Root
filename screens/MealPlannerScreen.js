@@ -72,6 +72,7 @@ export default function MealPlannerScreen(){
     const [data6, setdata6] = useState([])
     const [modalAdd, setModalAdd] = useState([false, null, null])
     const [newMeal, setNewMeal] = useState()
+    const [deleteMeal, setDeleteMeal] = useState(false)
     const toggleModal = (day, mealtype, item) => {
         setModalData([day, mealtype, item]);
         setModalVisible(!modalVisible);
@@ -148,7 +149,7 @@ export default function MealPlannerScreen(){
                 setdata6(null)
             }
         })
-    }, [firstDay, modalData, modalAdd])
+    }, [firstDay, modalData, modalAdd, deleteMeal])
 
     const handleChangeText = (text, type) => {
         const daystring = moment(modalData[0]).format('MM-D-YY');
@@ -171,8 +172,17 @@ export default function MealPlannerScreen(){
         setModalAdd([true, day, null])
     }
     const doneAddModal = () => {
-        if (modalAdd[2]!=null && modalAdd[2]!=""){
+        if (modalAdd[2]!=null || modalAdd[2]!=""){
             db.collection(moment(modalAdd[1]).format('MM-D-YY')).doc(modalAdd[2]).set({})
+            let size = false;
+            db.collection(moment(modalAdd[1]).format('MM-D-YY')).get().then((query)=>{
+                size = query.empty;
+            })
+            if (size==false){
+                db.collection(moment(modalAdd[1]).format('MM-D-YY')).doc("breakfast").set({})
+                db.collection(moment(modalAdd[1]).format('MM-D-YY')).doc("lunch").set({})
+                db.collection(moment(modalAdd[1]).format('MM-D-YY')).doc("dinner").set({})
+            }
         }
         setModalAdd([false, null, null])
     }
@@ -180,6 +190,15 @@ export default function MealPlannerScreen(){
         let newModalAdd = modalAdd;
         newModalAdd[2] = text;
         setModalAdd(newModalAdd)
+    }
+    const removeMeal = (day, id) => {
+        db.collection(moment(day).format('MM-D-YY')).doc(id).delete()
+        setDeleteMeal(!deleteMeal);
+    }
+
+    const clearMeal = (day, id) => {
+        db.collection(moment(day).format('MM-D-YY')).doc(id).set({})
+        setDeleteMeal(!deleteMeal)
     }
 
     const renderItem = (day, index) => {
@@ -212,6 +231,14 @@ export default function MealPlannerScreen(){
                                         <Text>{item.data().notes}</Text>
                                     </View>
                                 </View>
+                                {(item.id!="breakfast" && item.id!="lunch" && item.id!="dinner") &&
+                                    <TouchableOpacity onPress={()=>removeMeal(day, item.id)}>
+                                        <Text>delete</Text>
+                                    </TouchableOpacity>
+                                }
+                                <TouchableOpacity onPress={()=>clearMeal(day, item.id)}>
+                                    <Text>clear</Text>
+                                </TouchableOpacity>
                             </TouchableOpacity>
                         </View>
                     )}
@@ -220,20 +247,41 @@ export default function MealPlannerScreen(){
                     <View>
                         <TouchableOpacity style={{flexDirection: 'row', backgroundColor: 'pink'}} onPress={()=> toggleModal(day, "breakfast")}>
                             <View style={{flexDirection: 'column', borderWidth: 2, borderColor: 'black'}}>
-                                <Text style={{width: 20}}>BREAKFAST</Text>
+                                <Text style={{width: 20}}>breakfast</Text>
+                            </View>
+                            <View style={{flexDirection: 'column'}}>
+                                <View>
+                                    <Text>Meal:</Text>
+                                </View>
+                                <View>
+                                    <Text>Notes:</Text>
+                                </View>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity style={{flexDirection: 'row', backgroundColor: 'pink'}} onPress={()=> toggleModal(day, "lunch")}>
                             <View style={{flexDirection: 'column', borderWidth: 2, borderColor: 'black'}}>
-                                <Text style={{width: 20}}>LUNCH</Text>
+                                <Text style={{width: 20}}>lunch</Text>
+                            </View>
+                            <View style={{flexDirection: 'column'}}>
+                                <View>
+                                    <Text>Meal:</Text>
+                                </View>
+                                <View>
+                                    <Text>Notes:</Text>
+                                </View>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity style={{flexDirection: 'row', backgroundColor: 'pink'}} onPress={()=> toggleModal(day, "dinner")}>
                             <View style={{flexDirection: 'column', borderWidth: 2, borderColor: 'black'}}>
-                                <Text style={{width: 20}}>DINNER</Text>
+                                <Text style={{width: 20}}>dinner</Text>
                             </View>
-                            <View>
-                                <Text></Text>
+                            <View style={{flexDirection: 'column'}}>
+                                <View>
+                                    <Text>Meal:</Text>
+                                </View>
+                                <View>
+                                    <Text>Notes:</Text>
+                                </View>
                             </View>
                         </TouchableOpacity>
                     </View>
