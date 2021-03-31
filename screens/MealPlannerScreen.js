@@ -154,9 +154,13 @@ export default function MealPlannerScreen(){
     const handleChangeText = (text, type) => {
         const daystring = moment(modalData[0]).format('MM-D-YY');
         if (modalData[2]==null){
-            db.collection(daystring).doc("breakfast").set({})
-            db.collection(daystring).doc("lunch").set({})
-            db.collection(daystring).doc("dinner").set({})
+            db.collection(moment(daystring).format('MM-D-YY')).get().then((query)=>{
+                if (query.empty){
+                    db.collection(daystring).doc("breakfast").set({})
+                    db.collection(daystring).doc("lunch").set({})
+                    db.collection(daystring).doc("dinner").set({})
+                }
+            })
             db.collection(daystring).doc(modalData[1]).update({
                 [type]: text,
             })
