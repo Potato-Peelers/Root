@@ -83,6 +83,21 @@ export default function MealPlannerScreen(){
         db.collection(daystring).get().then((query) => {
             if (!query.empty){
                 let docs = query.docs;
+                docs.map((doc, index)=>{
+                    if (doc.id=='breakfast'){
+                        let temp = docs[0];
+                        docs[0] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='lunch'){
+                        let temp = docs[1];
+                        docs[1] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='dinner'){
+                        let temp = docs[2];
+                        docs[2] = docs[index];
+                        docs[index] = temp;
+                    }
+                })
                 setdata0(docs)
             }
             else{
@@ -93,6 +108,21 @@ export default function MealPlannerScreen(){
         db.collection(daystring).get().then((query) => {
             if (!query.empty){
                 let docs = query.docs;
+                docs.map((doc, index)=>{
+                    if (doc.id=='breakfast'){
+                        let temp = docs[0];
+                        docs[0] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='lunch'){
+                        let temp = docs[1];
+                        docs[1] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='dinner'){
+                        let temp = docs[2];
+                        docs[2] = docs[index];
+                        docs[index] = temp;
+                    }
+                })
                 setdata1(docs)
             }
             else{
@@ -103,6 +133,21 @@ export default function MealPlannerScreen(){
         db.collection(daystring).get().then((query) => {
             if (!query.empty){
                 let docs = query.docs;
+                docs.map((doc, index)=>{
+                    if (doc.id=='breakfast'){
+                        let temp = docs[0];
+                        docs[0] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='lunch'){
+                        let temp = docs[1];
+                        docs[1] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='dinner'){
+                        let temp = docs[2];
+                        docs[2] = docs[index];
+                        docs[index] = temp;
+                    }
+                })
                 setdata2(docs)
             }
             else{
@@ -113,6 +158,21 @@ export default function MealPlannerScreen(){
         db.collection(daystring).get().then((query) => {
             if (!query.empty){
                 let docs = query.docs;
+                docs.map((doc, index)=>{
+                    if (doc.id=='breakfast'){
+                        let temp = docs[0];
+                        docs[0] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='lunch'){
+                        let temp = docs[1];
+                        docs[1] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='dinner'){
+                        let temp = docs[2];
+                        docs[2] = docs[index];
+                        docs[index] = temp;
+                    }
+                })
                 setdata3(docs)
             }
             else{
@@ -123,6 +183,21 @@ export default function MealPlannerScreen(){
         db.collection(daystring).get().then((query) => {
             if (!query.empty){
                 let docs = query.docs;
+                docs.map((doc, index)=>{
+                    if (doc.id=='breakfast'){
+                        let temp = docs[0];
+                        docs[0] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='lunch'){
+                        let temp = docs[1];
+                        docs[1] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='dinner'){
+                        let temp = docs[2];
+                        docs[2] = docs[index];
+                        docs[index] = temp;
+                    }
+                })
                 setdata4(docs)
             }
             else{
@@ -133,6 +208,21 @@ export default function MealPlannerScreen(){
         db.collection(daystring).get().then((query) => {
             if (!query.empty){
                 let docs = query.docs;
+                docs.map((doc, index)=>{
+                    if (doc.id=='breakfast'){
+                        let temp = docs[0];
+                        docs[0] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='lunch'){
+                        let temp = docs[1];
+                        docs[1] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='dinner'){
+                        let temp = docs[2];
+                        docs[2] = docs[index];
+                        docs[index] = temp;
+                    }
+                })
                 setdata5(docs)
             }
             else{
@@ -143,6 +233,21 @@ export default function MealPlannerScreen(){
         db.collection(daystring).get().then((query) => {
             if (!query.empty){
                 let docs = query.docs;
+                docs.map((doc, index)=>{
+                    if (doc.id=='breakfast'){
+                        let temp = docs[0];
+                        docs[0] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='lunch'){
+                        let temp = docs[1];
+                        docs[1] = docs[index];
+                        docs[index] = temp;
+                    }else if (doc.id=='dinner'){
+                        let temp = docs[2];
+                        docs[2] = docs[index];
+                        docs[index] = temp;
+                    }
+                })
                 setdata6(docs)
             }
             else{
@@ -176,13 +281,13 @@ export default function MealPlannerScreen(){
         setModalAdd([true, day, null])
     }
     const doneAddModal = () => {
-        if (modalAdd[2]!=null || modalAdd[2]!=""){
+        if (modalAdd[2]!=null && modalAdd[2]!=""){
             db.collection(moment(modalAdd[1]).format('MM-D-YY')).doc(modalAdd[2]).set({})
             let size = false;
             db.collection(moment(modalAdd[1]).format('MM-D-YY')).get().then((query)=>{
                 size = query.empty;
             })
-            if (size==false){
+            if (size==true){
                 db.collection(moment(modalAdd[1]).format('MM-D-YY')).doc("breakfast").set({})
                 db.collection(moment(modalAdd[1]).format('MM-D-YY')).doc("lunch").set({})
                 db.collection(moment(modalAdd[1]).format('MM-D-YY')).doc("dinner").set({})
@@ -578,9 +683,11 @@ const styles = StyleSheet.create({
     },
     modal:{
         zIndex: 100,
+        flex: 1,
         justifyContent: 'center',
         alignSelf: 'center',
-        alignContent: 'cemter'
+        alignContent: 'center',
+        alignItems: 'center'
     }
     
     
