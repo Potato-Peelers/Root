@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { VictoryBar, VictoryChart, VictoryTheme } from "victory-native";
-
+//hi
 //import "react-native";
 //import React from "react";
 //import App from "../App.js";
