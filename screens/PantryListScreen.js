@@ -22,21 +22,7 @@ export default class PantryListScreen extends React.Component {
     
     super(props);
 
-    this.array = [{
-      title: 'Sugar'
-    },
-    {
-      title: 'Nuts'
-    },
-    {
-      title: 'Oil'
-    },
-    {
-      title: 'Flour'
-    },
-    {
-      title: 'Milk'
-    }
+    this.array = [{}
     ],
 
       this.state = {
@@ -44,6 +30,7 @@ export default class PantryListScreen extends React.Component {
         arrayHolder: [],
          textInput_Holder: ''
         }
+        this.deleteData = this.deleteData.bind(this)
   }
 componentDidMount() {
     this.setState({ arrayHolder: [...this.array] })
@@ -54,6 +41,13 @@ componentDidMount() {
   this.setState({ arrayHolder: [...this.array] })
 
 }
+deleteData = (t) =>{
+  let itemsCopy = [...this.state.arrayHolder]
+  itemsCopy.splice(t,1);
+  this.setState({arrayHolder: itemsCopy});
+
+}
+
 FlatListItemSeparator = () => {
   return (
     <View
@@ -65,11 +59,14 @@ FlatListItemSeparator = () => {
     />
   );
 }
+/*
 GetItem(item) {
 
   Alert.alert(item);
 
 }
+*/
+
 render() {
   return (
 
@@ -100,9 +97,9 @@ render() {
 
         ItemSeparatorComponent={this.FlatListItemSeparator}
 
-        renderItem={({ item }) => <Text style={styles.pitem} onPress={this.GetItem.bind(this, item.title)} > {item.title} </Text>}
-      />
-    </SafeAreaView>
+        renderItem={({ item, index }) => <TouchableOpacity key={index} onPress={()=>{this.deleteData(index)}}><Text>{item.title}</Text></TouchableOpacity>}
+        />
+      </SafeAreaView>
 
   );
 }
