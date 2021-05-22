@@ -580,7 +580,7 @@ const styles = StyleSheet.create({
         zIndex: 100,
         justifyContent: 'center',
         alignSelf: 'center',
-        alignContent: 'cemter'
+        alignContent: 'center'
     }
     
     

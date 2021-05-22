@@ -1,6 +1,9 @@
-import React from 'react';
-import { View, StyleSheet, Text, FlatList, SafeAreaView, StatusBar } from 'react-native';
+//import React from 'react';
+import React, {useState, useEffect} from 'react';
+import { View, StyleSheet, Text, FlatList, SafeAreaView, TouchableOpacity, TextInput, StatusBar } from 'react-native';
 import { List, ListItem } from 'react-native-elements';
+import firestore from '../src/firebase/config';
+import { LogBox } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -16,8 +19,146 @@ const Color = {
   secondry: '#5FD9F3',
   white: '#ffffff'
 }
+const user ='qlw4YNAfCtUAJrSCFWly';
 
-export default class ShoppingListScreen extends React.Component {
+export default function ShoppingListScreen() {
+  const navigationOptions = {
+    tabBarIcon: TabIcon
+  };
+  const [itemList, setItemList]=useState([])
+  const [itemName, setItemName] = useState("");
+  var db = firestore.collection('users').doc(user).collection('shoppinglist').doc('week2');
+
+  //console.log(" shopping list screen ")
+  //const [blogs,setBlogs]=useState([])
+  const fetchPantryItems = () => {
+    const response=db.collection('pantrylist'); // returns list of docs
+    data.docs.forEach(item=>{
+       //setItems([...items,item.data()])
+       console.log("item retrieved")
+    })
+    //const snapshot = await db.get();  // returns collection in week2
+    console.log(" items read from db")
+    db.collection("pantrylist").onSnapshot(function (querySnapshot) {
+        const list = querySnapshot.docs.map((doc) => ({
+          id : doc.id,
+          name: doc.data().name,
+          type: doc.data().type
+        }));
+        setItemList(list);
+        console.log("itemlist", list)
+    });
+  }
+
+ const useEffect2 = () => {
+    if (orgList.length > 0) {
+       return; // we already have data, so no need to run this again
+    }
+
+    const unsubscribe = firebase
+      .firestore()
+      .collection('users').doc(user).collection('shoppinglist').doc('week2').collection("pantrylist")
+      .onSnapshot((snapshot) => {
+        const orgList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
+          type: doc.data().type
+        }));
+        setItemList(orgList);
+        console.log("orglist", orgList)
+      }, () => {
+        setError(true)
+      });
+      setLoading(false);
+      return() => unsubscribe();
+   } 
+
+  const useEffect = () => {
+    //fetchPantryItems();  // fetch it first time when app runs
+    getItems()
+  }
+
+  const addItem = () => {
+    console.log("add item called")
+    db.collection("pantrylist").add({ // pantrylist is a collection containing item documents
+      name: itemName,
+      type: "Grocery"
+    });
+    setItemName("");
+    getItems()
+  }
+  
+
+  const updateItem = () => { // accept id as an argument
+    db.collection("pantrylist").doc(id).update({
+        type: "Unknown"
+    });
+  }
+
+  const getItems = () => {
+    console.log("get items called ")
+    db.collection("pantrylist").get().then ((querySnapshot) => {
+      const list = querySnapshot.docs.map((doc) => ({
+        id : doc.id,
+        name: doc.data().name,
+        type: doc.data().type
+      }));
+      setItemList(list);
+      //console.log("itemlist", list)
+    });
+  }
+
+  const deleteItem = (id) => { // accept id as an argument
+    console.log("delete Item called ")
+    db.collection("pantrylist").doc(id).delete();
+    getItems()
+  }
+  const renderItemComponent = (itemData) => {// 1
+  <TouchableOpacity>   // 2
+      <Text style={styles.buttonText}> {itemData.name} </Text>
+  </TouchableOpacity>
+  }
+  return (
+    <SafeAreaView style={styles.container}>
+      <TextInput style={styles.appButtonText}
+        placeholder="Enter Item Here"
+        onChangeText={(itemName) => { setItemName( itemName )}}
+        value = { itemName }
+        underlineColorAndroid='transparent'
+      />
+      <TouchableOpacity onPress={() => addItem()} activeOpacity={0.7} style={styles.appButtonText} >
+        <Text style={styles.buttonText}> Add Items </Text>
+
+      </TouchableOpacity>
+         <FlatList
+            data={itemList}
+            //renderItem={item => renderItemComponent(item)}
+           // renderItem={({ item }) => <Text style={styles.item}>{item.name}</Text>}
+            renderItem={({ item, index }) => <TouchableOpacity key={index} onPress={()=>{deleteItem(item.id)}}><Text style={styles.item} >{item.name}</Text></TouchableOpacity>}
+            keyExtractor={item => item.id.toString()}
+            //ItemSeparatorComponent={this.ItemSeparator}
+          /> 
+    </SafeAreaView>
+ );
+
+}
+
+/*export default class ShoppingListScreen extends React.Component {
+
+<FlatList
+        data={itemList}
+        numColumns={1}
+        ListEmptyComponent={
+          <View style={styles.flatListEmpty}>
+            <Text style={{fontWeight: 'bold'}}> Add Items Below </Text>
+          </View>
+        }
+        renderItem = {({ item }) => (
+          <View style={styles.flatListStyle}>
+            <Item title={item.name} />
+          </View>
+        )}
+      /> 
 
   static navigationOptions = {
     tabBarIcon: TabIcon
@@ -61,11 +202,13 @@ export default class ShoppingListScreen extends React.Component {
       </SafeAreaView>
    );
   }
-}
+}*/
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      marginTop: StatusBar.currentHeight || 0,
+      marginTop: 50,
+      height: 50,
+      padding: 10,
     },
     item: {
       backgroundColor: '#0CB0D3',
@@ -76,5 +219,10 @@ export default class ShoppingListScreen extends React.Component {
     title: {
       fontSize: 22,
     },
+    appButtonText: {
+      fontSize: 18,
+      alignSelf: "center",
+      padding: 10,
+    }
   });
 

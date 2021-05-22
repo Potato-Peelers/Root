@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import firestore from '../src/firebase/config';
 
-import { StyleSheet, FlatList, Text, View, Alert, TouchableOpacity, TextInput,SafeAreaView } from 'react-native';
+import { StyleSheet, FlatList, Text, View, Alert, TouchableOpacity, TextInput,SafeAreaView, StatusBar } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -11,13 +12,14 @@ const TabIcon = (props) => (
     color={props.focused ? 'grey' : 'darkgrey'}
   />
 )
-
+const docName ='qlw4YNAfCtUAJrSCFWly';
 export default class PantryListScreen extends React.Component {
 
+  
   static navigationOptions = {
     tabBarIcon: TabIcon
   };
-
+ 
   constructor(props) {
     
     super(props);
@@ -31,9 +33,16 @@ export default class PantryListScreen extends React.Component {
          textInput_Holder: ''
         }
         this.deleteData = this.deleteData.bind(this)
+        //var db = firestore.collection('users').doc(docName).collection('shoppinglist').doc('shoppinglist');
+        
+
   }
 componentDidMount() {
     this.setState({ arrayHolder: [...this.array] })
+    //const [item, setItem] = useState('')
+    //const [newItem, setNewItem] = useState([null])
+    // useEffect hooks go here if class component is used
+    // use onSnapshot for getting updates automatically
  }
 
  joinData = () => {
@@ -42,10 +51,29 @@ componentDidMount() {
 
 }
 deleteData = (t) =>{
-  let itemsCopy = [...this.state.arrayHolder]
-  itemsCopy.splice(t,1);
-  this.setState({arrayHolder: itemsCopy});
+  //let itemsCopy = [...this.state.arrayHolder]
+  //itemsCopy.splice(t,1);
+  //this.setState({arrayHolder: itemsCopy});
+  //let itemsCopy = [...this.state.arrayHolder]
+  this.array.splice(t,1);
+  this.setState({ arrayHolder: [...this.array] })
 
+}
+
+addItem = () =>{
+  //setNewItem([text])
+  var text = this.state.textInput_Holder
+  var shoppingListDocRef = firestore.collection('users').doc(docName).collection('shoppinglist').doc('week2');
+    //var shoppingListDocRef = firestore.collection('users').doc(docName).collection('shoppinglist').doc('shoppinglist');
+    //shoppingListDocRef.collection("week1").add({text})
+    //var newItemRef = shoppingListDocRef.collection("week1").add({text})
+    //newItemRef.set(text)
+
+   shoppingListDocRef.set({text});
+
+   // also show on the UI
+   this.array.push({title : this.state.textInput_Holder});
+  this.setState({ arrayHolder: [...this.array] })
 }
 
 FlatListItemSeparator = () => {
@@ -79,26 +107,27 @@ render() {
         underlineColorAndroid='transparent'
       />
 
-      <TouchableOpacity onPress={this.joinData} activeOpacity={0.7} style={styles.button} >
+      <TouchableOpacity onPress={this.addItem} activeOpacity={0.7} style={styles.button} >
 
         <Text style={styles.buttonText}> Add Items to Pantry </Text>
 
       </TouchableOpacity>
+      <SafeAreaView style={styles.container}>
+          <FlatList
 
-      <FlatList
+          data={this.state.arrayHolder}
 
-        data={this.state.arrayHolder}
+          width='100%'
 
-        width='100%'
+          extraData={this.state.arrayHolder}
 
-        extraData={this.state.arrayHolder}
+          keyExtractor={(index) => index.toString()}
 
-        keyExtractor={(index) => index.toString()}
+          ItemSeparatorComponent={this.FlatListItemSeparator}
 
-        ItemSeparatorComponent={this.FlatListItemSeparator}
-
-        renderItem={({ item, index }) => <TouchableOpacity key={index} onPress={()=>{this.deleteData(index)}}><Text>{item.title}</Text></TouchableOpacity>}
-        />
+          renderItem={({ item, index }) => <TouchableOpacity key={index} onPress={()=>{this.deleteData(index)}}><Text>{item.title}</Text></TouchableOpacity>}
+          />
+        </SafeAreaView>
       </SafeAreaView>
 
   );
@@ -117,9 +146,9 @@ const styles = StyleSheet.create({
   },
 
   pitem: {
-    padding: 10,
-    fontSize: 18,
-    height: 44,
+    padding: 15,
+    fontSize: 20,
+    height: 48,
   },
 
   textInputStyle: {
@@ -149,6 +178,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     textAlign: 'center',
+  },
+  container: {
+    flex: 1,
+    marginTop: StatusBar.currentHeight || 0,
   },
 
 });
