@@ -8,5 +8,4 @@ export default function App() {
     <AppNavigator />
   );
 
-//brownie
 }
