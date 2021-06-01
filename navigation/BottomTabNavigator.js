@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import PantryListScreen from '../screens/PantryListScreen';
 import ShoppingListScreen from '../screens/ShoppingListScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import StatisticsScreen from '../screens/StatisticsScreen';
 import ScannerScreen from '../screens/ScannerScreen';
 import MealPlannerScreen from '../screens/MealPlannerScreen';
 // import ExpirationDate from '../screens/ExpirationDate';
@@ -15,7 +15,7 @@ const BottomTabNavigator = createBottomTabNavigator({
     tabBarIcon: ({ tintColor }) => <Ionicons name="ios-list-circle" size={35} color="black" />}},
   Two: { screen: ShoppingListScreen, navigationOptions: {
     tabBarIcon: ({ tintColor }) => <Ionicons name="ios-cart" size={35} color="black" />}},
-  Three: { screen: SettingsScreen, navigationOptions: {
+  Three: { screen: StatisticsScreen, navigationOptions: {
     tabBarIcon: ({ tintColor }) => <Ionicons name="ios-analytics" size={35} color="black" />}},
   Four: { screen: ScannerScreen, navigationOptions: {
     tabBarIcon: ({ tintColor }) => <Ionicons name="ios-camera" size={35} color="black" />}},
