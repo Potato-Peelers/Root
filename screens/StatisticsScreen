@@ -1,0 +1,89 @@
+import React, {useState, useEffect} from "react";
+import { StyleSheet, View } from "react-native";
+//import { VictoryBar, VictoryChart, VictoryTheme } from "victory-native";
+import firestore from '../src/firebase/config';
+//import { Table, TableWrapper, Row, Rows, Col, Cols, Cell } from 'react-native-table-component';
+
+export default function StatisticsScreen () {
+
+   const [data, setData] = useState([])
+   const [amountList, setAmountList] = useState([])
+   const [foodList, setFoodList] = useState([])
+ 
+   const createData = () => {
+       const user = 'qlw4YNAfCtUAJrSCFWly'
+       const db = firestore.collection('users').doc(user).collection('leftovers');
+       setData([]);
+       const tempArr = []
+       const tempAmountList = amountList
+       const tempFoodList = foodList
+       db.get().then((snapshot) => {
+           snapshot.forEach((doc) => {
+               var date = doc.id
+               var total = 0
+               var arr = doc.data()
+               var food = ""
+               console.log(arr)
+               Object.keys(arr).forEach((name)=>{
+                   total+=arr[name]
+                   food = name
+               })
+               tempArr.push({date: date, amount: total})
+               const found = false
+               for (var i in tempFoodList) {
+                   if (tempFoodList[i] == food) {
+                       tempAmountList[i]+=total;
+                       found = true;
+                       break;
+                   }
+               }
+               if (found === false){
+                   tempFoodList.push(food)
+                   tempAmountList.push([total])
+               }
+           })
+           setData(tempArr)
+           setAmountList(tempAmountList)
+           setFoodList(tempFoodList)
+       })
+   }
+  
+   useEffect(() => {
+       const user = 'qlw4YNAfCtUAJrSCFWly'
+       const db = firestore.collection('users').doc(user).collection('leftovers');
+       db.onSnapshot((snap) => {
+           createData()
+       });
+   }, [])
+ 
+   return (
+       <View style={styles.container}>
+           <VictoryChart width={350} theme={VictoryTheme.material}>
+               <VictoryBar data={data} x="date" y="amount" />
+           </VictoryChart>
+           <Table borderStyle={{borderWidth: 1}}>
+               <Row data={['Food', 'Meals Wasted']} flexArr={[2, 1]} style={styles.head} textStyle={styles.text}/>
+               <TableWrapper style={styles.wrapper}>
+                   <Col data={foodList} style={styles.title} heightArr={[28,28]} textStyle={styles.text}/>
+                   <Rows data={amountList} style={styles.row} textStyle={styles.text}/>
+               </TableWrapper>
+           </Table>
+       </View>
+   );
+
+}
+//https://www.npmjs.com/package/react-native-table-component
+const styles = StyleSheet.create({
+ container: {
+   flex: 1,
+   justifyContent: "center",
+   alignItems: "center",
+   backgroundColor: "#f5fcff",
+ },
+ //container: { flex: 1, padding: 16, paddingTop: 30, backgroundColor: '#fff' },
+ head: {  height: 40,  backgroundColor: '#f1f8ff'  },
+ wrapper: { flexDirection: 'row' },
+ title: { flex: 1, backgroundColor: '#f6f8fa' },
+ row: {  height: 28  },
+ text: { textAlign: 'center' }
+});
